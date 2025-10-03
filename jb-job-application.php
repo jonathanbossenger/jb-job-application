@@ -124,35 +124,35 @@ function jb_job_app_render_meta_box($post) {
     ?>
     <table class="form-table">
         <tr>
-            <th><label><?php _e('First Name', 'jb-job-application'); ?></label></th>
+            <th><label><?php esc_html_e('First Name', 'jb-job-application'); ?></label></th>
             <td><?php echo esc_html($first_name); ?></td>
         </tr>
         <tr>
-            <th><label><?php _e('Last Name', 'jb-job-application'); ?></label></th>
+            <th><label><?php esc_html_e('Last Name', 'jb-job-application'); ?></label></th>
             <td><?php echo esc_html($last_name); ?></td>
         </tr>
         <tr>
-            <th><label><?php _e('Email', 'jb-job-application'); ?></label></th>
+            <th><label><?php esc_html_e('Email', 'jb-job-application'); ?></label></th>
             <td><?php echo esc_html($email); ?></td>
         </tr>
         <tr>
-            <th><label><?php _e('Phone', 'jb-job-application'); ?></label></th>
+            <th><label><?php esc_html_e('Phone', 'jb-job-application'); ?></label></th>
             <td><?php echo esc_html($phone); ?></td>
         </tr>
         <tr>
-            <th><label><?php _e('Resume', 'jb-job-application'); ?></label></th>
+            <th><label><?php esc_html_e('Resume', 'jb-job-application'); ?></label></th>
             <td>
                 <?php if ($resume_url): ?>
                     <a href="<?php echo esc_url($resume_url); ?>" target="_blank">
-                        <?php _e('Download Resume', 'jb-job-application'); ?>
+                        <?php esc_html_e('Download Resume', 'jb-job-application'); ?>
                     </a>
                 <?php else: ?>
-                    <?php _e('No resume uploaded', 'jb-job-application'); ?>
+                    <?php esc_html_e('No resume uploaded', 'jb-job-application'); ?>
                 <?php endif; ?>
             </td>
         </tr>
         <tr>
-            <th><label><?php _e('Submitted', 'jb-job-application'); ?></label></th>
+            <th><label><?php esc_html_e('Submitted', 'jb-job-application'); ?></label></th>
             <td><?php echo esc_html($submitted_date); ?></td>
         </tr>
     </table>
@@ -257,41 +257,41 @@ function jb_job_app_render_form_block($attributes) {
     <div class="jb-job-application-form">
         <?php if (isset($_GET['application_submitted']) && $_GET['application_submitted'] == '1'): ?>
             <div class="jb-job-app-success">
-                <?php _e('Your application has been submitted successfully!', 'jb-job-application'); ?>
+                <?php esc_html_e('Your application has been submitted successfully!', 'jb-job-application'); ?>
             </div>
         <?php else: ?>
             <form method="post" enctype="multipart/form-data" id="jb-job-application-form">
                 <?php wp_nonce_field('jb_job_app_submit', 'jb_job_app_nonce'); ?>
                 
                 <div class="form-group">
-                    <label for="jb_first_name"><?php _e('First Name', 'jb-job-application'); ?> <span class="required">*</span></label>
+                    <label for="jb_first_name"><?php esc_html_e('First Name', 'jb-job-application'); ?> <span class="required">*</span></label>
                     <input type="text" id="jb_first_name" name="jb_first_name" required />
                 </div>
 
                 <div class="form-group">
-                    <label for="jb_last_name"><?php _e('Last Name', 'jb-job-application'); ?> <span class="required">*</span></label>
+                    <label for="jb_last_name"><?php esc_html_e('Last Name', 'jb-job-application'); ?> <span class="required">*</span></label>
                     <input type="text" id="jb_last_name" name="jb_last_name" required />
                 </div>
 
                 <div class="form-group">
-                    <label for="jb_email"><?php _e('Email', 'jb-job-application'); ?> <span class="required">*</span></label>
+                    <label for="jb_email"><?php esc_html_e('Email', 'jb-job-application'); ?> <span class="required">*</span></label>
                     <input type="email" id="jb_email" name="jb_email" value="<?php echo esc_attr($current_user->user_email); ?>" required />
                 </div>
 
                 <div class="form-group">
-                    <label for="jb_phone"><?php _e('Phone', 'jb-job-application'); ?> <span class="required">*</span></label>
+                    <label for="jb_phone"><?php esc_html_e('Phone', 'jb-job-application'); ?> <span class="required">*</span></label>
                     <input type="tel" id="jb_phone" name="jb_phone" required />
                 </div>
 
                 <div class="form-group">
-                    <label for="jb_resume"><?php _e('Resume (PDF only)', 'jb-job-application'); ?> <span class="required">*</span></label>
+                    <label for="jb_resume"><?php esc_html_e('Resume (PDF only)', 'jb-job-application'); ?> <span class="required">*</span></label>
                     <input type="file" id="jb_resume" name="jb_resume" accept=".pdf" required />
-                    <small><?php _e('Maximum file size: 5MB', 'jb-job-application'); ?></small>
+                    <small><?php esc_html_e('Maximum file size: 5MB', 'jb-job-application'); ?></small>
                 </div>
 
                 <div class="form-group">
                     <button type="submit" name="jb_submit_application" class="button button-primary">
-                        <?php _e('Submit Application', 'jb-job-application'); ?>
+                        <?php esc_html_e('Submit Application', 'jb-job-application'); ?>
                     </button>
                 </div>
             </form>
