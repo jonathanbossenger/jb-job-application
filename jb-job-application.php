@@ -269,8 +269,9 @@ function jb_job_app_handle_resume_download() {
 	}
 
 	// Serve the file
+	$filename = sanitize_file_name( basename( $resume_file ) );
 	header( 'Content-Type: application/pdf' );
-	header( 'Content-Disposition: inline; filename="' . basename( $resume_file ) . '"' );
+	header( 'Content-Disposition: inline; filename="' . $filename . '"' );
 	header( 'Content-Length: ' . filesize( $resume_file ) );
 	header( 'Cache-Control: private, max-age=0, must-revalidate' );
 	header( 'Pragma: public' );
