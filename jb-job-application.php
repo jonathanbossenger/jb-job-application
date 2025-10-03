@@ -30,6 +30,9 @@ function jb_job_app_activate() {
 	// Register custom post type
 	jb_job_app_register_post_type();
 
+	// Create secure applications directory
+	jb_job_app_create_applications_directory();
+
 	// Flush rewrite rules
 	flush_rewrite_rules();
 }
@@ -55,6 +58,66 @@ function jb_job_app_add_applicant_role() {
 			'read'                   => true,
 			'submit_job_application' => true,
 		)
+	);
+}
+
+/**
+ * Get or create the secure applications directory
+ */
+function jb_job_app_get_applications_dir() {
+	$wp_content_dir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR : ABSPATH . 'wp-content';
+	return $wp_content_dir . '/applications';
+}
+
+/**
+ * Create the applications directory with security measures
+ */
+function jb_job_app_create_applications_directory() {
+	$upload_dir = jb_job_app_get_applications_dir();
+
+	// Create directory if it doesn't exist
+	if ( ! file_exists( $upload_dir ) ) {
+		wp_mkdir_p( $upload_dir );
+	}
+
+	// Create index.php to prevent directory browsing
+	$index_file = $upload_dir . '/index.php';
+	if ( ! file_exists( $index_file ) ) {
+		file_put_contents( $index_file, '<?php' . PHP_EOL . '// Silence is golden.' . PHP_EOL );
+	}
+}
+
+/**
+ * Handle secure file upload with UUID naming
+ */
+function jb_job_app_handle_secure_upload( $file ) {
+	// Ensure the applications directory exists
+	$upload_dir = jb_job_app_get_applications_dir();
+	jb_job_app_create_applications_directory();
+
+	// Generate UUID for the file
+	$uuid = wp_generate_uuid4();
+	
+	// Get file extension
+	$file_type = wp_check_filetype( $file['name'] );
+	$extension = $file_type['ext'];
+	
+	// Create new filename with UUID
+	$new_filename = $uuid . '.' . $extension;
+	$new_filepath = $upload_dir . '/' . $new_filename;
+
+	// Move the uploaded file to the secure location
+	if ( ! move_uploaded_file( $file['tmp_name'], $new_filepath ) ) {
+		return array( 'error' => __( 'Failed to move uploaded file', 'jb-job-application' ) );
+	}
+
+	// Set proper file permissions
+	chmod( $new_filepath, 0644 );
+
+	return array(
+		'file' => $new_filepath,
+		'url'  => '', // We don't provide a direct URL for security
+		'type' => $file_type['type'],
 	);
 }
 
@@ -228,6 +291,11 @@ function jb_job_app_get_resume_file_path( $post_id ) {
 				update_post_meta( $post_id, '_jb_resume_file', $resume_file );
 			}
 		}
+	}
+	
+	// Verify file exists, if not return empty
+	if ( $resume_file && ! file_exists( $resume_file ) ) {
+		return '';
 	}
 	
 	return $resume_file;
@@ -457,7 +525,8 @@ function jb_job_app_handle_submission() {
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 
-	$upload = wp_handle_upload( $_FILES['jb_resume'], array( 'test_form' => false ) );
+	// Use custom upload handler for secure storage
+	$upload = jb_job_app_handle_secure_upload( $_FILES['jb_resume'] );
 
 	if ( isset( $upload['error'] ) ) {
 		wp_die( esc_html( $upload['error'] ) );
