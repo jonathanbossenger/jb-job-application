@@ -38,8 +38,8 @@ files=(
     "src/editor.css"
     "src/style.css"
     "build/index.js"
-    "build/editor.css"
-    "build/style.css"
+    "build/index.css"
+    "build/style-index.css"
     "package.json"
     "README.md"
 )
