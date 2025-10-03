@@ -119,7 +119,7 @@ function jb_job_app_render_meta_box( $post ) {
 	$last_name      = get_post_meta( $post->ID, '_jb_last_name', true );
 	$email          = get_post_meta( $post->ID, '_jb_email', true );
 	$phone          = get_post_meta( $post->ID, '_jb_phone', true );
-	$resume_url     = get_post_meta( $post->ID, '_jb_resume_url', true );
+	$resume_file    = jb_job_app_get_resume_file_path( $post->ID );
 	$submitted_date = get_post_meta( $post->ID, '_jb_submitted_date', true );
 	?>
 	<table class="form-table">
@@ -142,8 +142,8 @@ function jb_job_app_render_meta_box( $post ) {
 		<tr>
 			<th><label><?php esc_html_e( 'Resume', 'jb-job-application' ); ?></label></th>
 			<td>
-				<?php if ( $resume_url ) : ?>
-					<a href="<?php echo esc_url( $resume_url ); ?>" target="_blank">
+				<?php if ( $resume_file && file_exists( $resume_file ) ) : ?>
+					<a href="<?php echo esc_url( jb_job_app_get_resume_download_url( $post->ID ) ); ?>" target="_blank">
 						<?php esc_html_e( 'Download Resume', 'jb-job-application' ); ?>
 					</a>
 				<?php else : ?>
@@ -186,14 +186,107 @@ function jb_job_app_custom_column_content( $column, $post_id ) {
 			echo esc_html( get_post_meta( $post_id, '_jb_phone', true ) );
 			break;
 		case 'resume':
-			$resume_url = get_post_meta( $post_id, '_jb_resume_url', true );
-			if ( $resume_url ) {
-				echo '<a href="' . esc_url( $resume_url ) . '" target="_blank">' . esc_html__( 'View', 'jb-job-application' ) . '</a>';
+			$resume_file = jb_job_app_get_resume_file_path( $post_id );
+			if ( $resume_file && file_exists( $resume_file ) ) {
+				echo '<a href="' . esc_url( jb_job_app_get_resume_download_url( $post_id ) ) . '" target="_blank">' . esc_html__( 'View', 'jb-job-application' ) . '</a>';
 			}
 			break;
 	}
 }
 add_action( 'manage_job_application_posts_custom_column', 'jb_job_app_custom_column_content', 10, 2 );
+
+/**
+ * Get secure resume download URL
+ */
+function jb_job_app_get_resume_download_url( $post_id ) {
+	return add_query_arg(
+		array(
+			'jb_download_resume' => $post_id,
+			'nonce'              => wp_create_nonce( 'jb_download_resume_' . $post_id ),
+		),
+		home_url()
+	);
+}
+
+/**
+ * Get resume file path, with backward compatibility
+ */
+function jb_job_app_get_resume_file_path( $post_id ) {
+	// Try to get the file path first (new method)
+	$resume_file = get_post_meta( $post_id, '_jb_resume_file', true );
+	
+	// If not found, try to convert from URL (old method)
+	if ( ! $resume_file ) {
+		$resume_url = get_post_meta( $post_id, '_jb_resume_url', true );
+		if ( $resume_url ) {
+			// Convert URL to file path
+			$upload_dir = wp_upload_dir();
+			$resume_file = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $resume_url );
+			
+			// Save the file path for future use
+			if ( file_exists( $resume_file ) ) {
+				update_post_meta( $post_id, '_jb_resume_file', $resume_file );
+			}
+		}
+	}
+	
+	return $resume_file;
+}
+
+/**
+ * Handle secure resume download
+ */
+function jb_job_app_handle_resume_download() {
+	// Check if this is a resume download request
+	if ( ! isset( $_GET['jb_download_resume'] ) ) {
+		return;
+	}
+
+	$post_id = intval( $_GET['jb_download_resume'] );
+
+	// Verify nonce
+	if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'jb_download_resume_' . $post_id ) ) {
+		wp_die( esc_html__( 'Security check failed', 'jb-job-application' ) );
+	}
+
+	// Check if user is logged in
+	if ( ! is_user_logged_in() ) {
+		wp_die( esc_html__( 'You must be logged in to download resumes', 'jb-job-application' ) );
+	}
+
+	// Verify post exists and is a job application
+	$post = get_post( $post_id );
+	if ( ! $post || $post->post_type !== 'job_application' ) {
+		wp_die( esc_html__( 'Invalid application', 'jb-job-application' ) );
+	}
+
+	// Get resume file path
+	$resume_file = jb_job_app_get_resume_file_path( $post_id );
+
+	// Verify file exists
+	if ( ! $resume_file || ! file_exists( $resume_file ) ) {
+		wp_die( esc_html__( 'Resume file not found', 'jb-job-application' ) );
+	}
+
+	// Serve the file
+	$filename = sanitize_file_name( basename( $resume_file ) );
+	header( 'Content-Type: application/pdf' );
+	header( 'Content-Disposition: inline; filename="' . $filename . '"' );
+	header( 'Content-Length: ' . filesize( $resume_file ) );
+	header( 'Cache-Control: private, max-age=0, must-revalidate' );
+	header( 'Pragma: public' );
+
+	// Clear output buffer to prevent corrupted file
+	if ( ob_get_level() ) {
+		ob_end_clean();
+	}
+
+	// Output file
+	readfile( $resume_file );
+	exit;
+}
+add_action( 'template_redirect', 'jb_job_app_handle_resume_download' );
+
 
 /**
  * Register Gutenberg block
@@ -390,6 +483,7 @@ function jb_job_app_handle_submission() {
 	update_post_meta( $post_id, '_jb_email', $email );
 	update_post_meta( $post_id, '_jb_phone', $phone );
 	update_post_meta( $post_id, '_jb_resume_url', $upload['url'] );
+	update_post_meta( $post_id, '_jb_resume_file', $upload['file'] );
 	update_post_meta( $post_id, '_jb_submitted_date', current_time( 'mysql' ) );
 
 	// Redirect with success message
