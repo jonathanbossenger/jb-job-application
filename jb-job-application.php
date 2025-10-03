@@ -124,35 +124,35 @@ function jb_job_app_render_meta_box( $post ) {
 	?>
 	<table class="form-table">
 		<tr>
-			<th><label><?php _e( 'First Name', 'jb-job-application' ); ?></label></th>
+			<th><label><?php esc_html_e( 'First Name', 'jb-job-application' ); ?></label></th>
 			<td><?php echo esc_html( $first_name ); ?></td>
 		</tr>
 		<tr>
-			<th><label><?php _e( 'Last Name', 'jb-job-application' ); ?></label></th>
+			<th><label><?php esc_html_e( 'Last Name', 'jb-job-application' ); ?></label></th>
 			<td><?php echo esc_html( $last_name ); ?></td>
 		</tr>
 		<tr>
-			<th><label><?php _e( 'Email', 'jb-job-application' ); ?></label></th>
+			<th><label><?php esc_html_e( 'Email', 'jb-job-application' ); ?></label></th>
 			<td><?php echo esc_html( $email ); ?></td>
 		</tr>
 		<tr>
-			<th><label><?php _e( 'Phone', 'jb-job-application' ); ?></label></th>
+			<th><label><?php esc_html_e( 'Phone', 'jb-job-application' ); ?></label></th>
 			<td><?php echo esc_html( $phone ); ?></td>
 		</tr>
 		<tr>
-			<th><label><?php _e( 'Resume', 'jb-job-application' ); ?></label></th>
+			<th><label><?php esc_html_e( 'Resume', 'jb-job-application' ); ?></label></th>
 			<td>
 				<?php if ( $resume_url ) : ?>
 					<a href="<?php echo esc_url( $resume_url ); ?>" target="_blank">
-						<?php _e( 'Download Resume', 'jb-job-application' ); ?>
+						<?php esc_html_e( 'Download Resume', 'jb-job-application' ); ?>
 					</a>
 				<?php else : ?>
-					<?php _e( 'No resume uploaded', 'jb-job-application' ); ?>
+					<?php esc_html_e( 'No resume uploaded', 'jb-job-application' ); ?>
 				<?php endif; ?>
 			</td>
 		</tr>
 		<tr>
-			<th><label><?php _e( 'Submitted', 'jb-job-application' ); ?></label></th>
+			<th><label><?php esc_html_e( 'Submitted', 'jb-job-application' ); ?></label></th>
 			<td><?php echo esc_html( $submitted_date ); ?></td>
 		</tr>
 	</table>
@@ -188,7 +188,7 @@ function jb_job_app_custom_column_content( $column, $post_id ) {
 		case 'resume':
 			$resume_url = get_post_meta( $post_id, '_jb_resume_url', true );
 			if ( $resume_url ) {
-				echo '<a href="' . esc_url( $resume_url ) . '" target="_blank">' . __( 'View', 'jb-job-application' ) . '</a>';
+				echo '<a href="' . esc_url( $resume_url ) . '" target="_blank">' . esc_html__( 'View', 'jb-job-application' ) . '</a>';
 			}
 			break;
 	}
@@ -241,9 +241,9 @@ function jb_job_app_render_form_block( $attributes ) {
 	// Check if user is logged in
 	if ( ! is_user_logged_in() ) {
 		return '<div class="jb-job-app-notice">' .
-				__( 'Please log in to submit a job application.', 'jb-job-application' ) .
-				' <a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . __( 'Log in', 'jb-job-application' ) . '</a>' .
-				' | <a href="' . esc_url( wp_registration_url() ) . '">' . __( 'Register', 'jb-job-application' ) . '</a>' .
+				esc_html__( 'Please log in to submit a job application.', 'jb-job-application' ) .
+				' <a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'Log in', 'jb-job-application' ) . '</a>' .
+				' | <a href="' . esc_url( wp_registration_url() ) . '">' . esc_html__( 'Register', 'jb-job-application' ) . '</a>' .
 				'</div>';
 	}
 
@@ -251,7 +251,7 @@ function jb_job_app_render_form_block( $attributes ) {
 	$current_user = wp_get_current_user();
 	if ( ! in_array( 'applicant', $current_user->roles ) && ! in_array( 'administrator', $current_user->roles ) ) {
 		return '<div class="jb-job-app-notice">' .
-				__( 'You need to be registered as an applicant to submit job applications.', 'jb-job-application' ) .
+				esc_html__( 'You need to be registered as an applicant to submit job applications.', 'jb-job-application' ) .
 				'</div>';
 	}
 
@@ -260,41 +260,41 @@ function jb_job_app_render_form_block( $attributes ) {
 	<div class="jb-job-application-form">
 		<?php if ( isset( $_GET['application_submitted'] ) && $_GET['application_submitted'] == '1' ) : ?>
 			<div class="jb-job-app-success">
-				<?php _e( 'Your application has been submitted successfully!', 'jb-job-application' ); ?>
+				<?php esc_html_e( 'Your application has been submitted successfully!', 'jb-job-application' ); ?>
 			</div>
 		<?php else : ?>
 			<form method="post" enctype="multipart/form-data" id="jb-job-application-form">
 				<?php wp_nonce_field( 'jb_job_app_submit', 'jb_job_app_nonce' ); ?>
 				
 				<div class="form-group">
-					<label for="jb_first_name"><?php _e( 'First Name', 'jb-job-application' ); ?> <span class="required">*</span></label>
+					<label for="jb_first_name"><?php esc_html_e( 'First Name', 'jb-job-application' ); ?> <span class="required">*</span></label>
 					<input type="text" id="jb_first_name" name="jb_first_name" required />
 				</div>
 
 				<div class="form-group">
-					<label for="jb_last_name"><?php _e( 'Last Name', 'jb-job-application' ); ?> <span class="required">*</span></label>
+					<label for="jb_last_name"><?php esc_html_e( 'Last Name', 'jb-job-application' ); ?> <span class="required">*</span></label>
 					<input type="text" id="jb_last_name" name="jb_last_name" required />
 				</div>
 
 				<div class="form-group">
-					<label for="jb_email"><?php _e( 'Email', 'jb-job-application' ); ?> <span class="required">*</span></label>
+					<label for="jb_email"><?php esc_html_e( 'Email', 'jb-job-application' ); ?> <span class="required">*</span></label>
 					<input type="email" id="jb_email" name="jb_email" value="<?php echo esc_attr( $current_user->user_email ); ?>" required />
 				</div>
 
 				<div class="form-group">
-					<label for="jb_phone"><?php _e( 'Phone', 'jb-job-application' ); ?> <span class="required">*</span></label>
+					<label for="jb_phone"><?php esc_html_e( 'Phone', 'jb-job-application' ); ?> <span class="required">*</span></label>
 					<input type="tel" id="jb_phone" name="jb_phone" required />
 				</div>
 
 				<div class="form-group">
-					<label for="jb_resume"><?php _e( 'Resume (PDF only)', 'jb-job-application' ); ?> <span class="required">*</span></label>
+					<label for="jb_resume"><?php esc_html_e( 'Resume (PDF only)', 'jb-job-application' ); ?> <span class="required">*</span></label>
 					<input type="file" id="jb_resume" name="jb_resume" accept=".pdf" required />
-					<small><?php _e( 'Maximum file size: 5MB', 'jb-job-application' ); ?></small>
+					<small><?php esc_html_e( 'Maximum file size: 5MB', 'jb-job-application' ); ?></small>
 				</div>
 
 				<div class="form-group">
 					<button type="submit" name="jb_submit_application" class="button button-primary">
-						<?php _e( 'Submit Application', 'jb-job-application' ); ?>
+						<?php esc_html_e( 'Submit Application', 'jb-job-application' ); ?>
 					</button>
 				</div>
 			</form>
@@ -314,18 +314,18 @@ function jb_job_app_handle_submission() {
 
 	// Verify nonce
 	if ( ! isset( $_POST['jb_job_app_nonce'] ) || ! wp_verify_nonce( $_POST['jb_job_app_nonce'], 'jb_job_app_submit' ) ) {
-		wp_die( __( 'Security check failed', 'jb-job-application' ) );
+		wp_die( esc_html__( 'Security check failed', 'jb-job-application' ) );
 	}
 
 	// Check if user is logged in
 	if ( ! is_user_logged_in() ) {
-		wp_die( __( 'You must be logged in to submit an application', 'jb-job-application' ) );
+		wp_die( esc_html__( 'You must be logged in to submit an application', 'jb-job-application' ) );
 	}
 
 	// Check user role
 	$current_user = wp_get_current_user();
 	if ( ! in_array( 'applicant', $current_user->roles ) && ! in_array( 'administrator', $current_user->roles ) ) {
-		wp_die( __( 'You must be an applicant to submit applications', 'jb-job-application' ) );
+		wp_die( esc_html__( 'You must be an applicant to submit applications', 'jb-job-application' ) );
 	}
 
 	// Validate required fields
@@ -335,28 +335,28 @@ function jb_job_app_handle_submission() {
 	$phone      = sanitize_text_field( $_POST['jb_phone'] );
 
 	if ( empty( $first_name ) || empty( $last_name ) || empty( $email ) || empty( $phone ) ) {
-		wp_die( __( 'All fields are required', 'jb-job-application' ) );
+		wp_die( esc_html__( 'All fields are required', 'jb-job-application' ) );
 	}
 
 	// Validate email
 	if ( ! is_email( $email ) ) {
-		wp_die( __( 'Invalid email address', 'jb-job-application' ) );
+		wp_die( esc_html__( 'Invalid email address', 'jb-job-application' ) );
 	}
 
 	// Handle file upload
 	if ( ! isset( $_FILES['jb_resume'] ) || $_FILES['jb_resume']['error'] !== UPLOAD_ERR_OK ) {
-		wp_die( __( 'Resume upload failed', 'jb-job-application' ) );
+		wp_die( esc_html__( 'Resume upload failed', 'jb-job-application' ) );
 	}
 
 	// Validate file type
 	$file_type = wp_check_filetype( $_FILES['jb_resume']['name'] );
 	if ( $file_type['ext'] !== 'pdf' ) {
-		wp_die( __( 'Only PDF files are allowed', 'jb-job-application' ) );
+		wp_die( esc_html__( 'Only PDF files are allowed', 'jb-job-application' ) );
 	}
 
 	// Validate file size (5MB max)
 	if ( $_FILES['jb_resume']['size'] > 5 * 1024 * 1024 ) {
-		wp_die( __( 'File size must not exceed 5MB', 'jb-job-application' ) );
+		wp_die( esc_html__( 'File size must not exceed 5MB', 'jb-job-application' ) );
 	}
 
 	// Upload file
@@ -367,7 +367,7 @@ function jb_job_app_handle_submission() {
 	$upload = wp_handle_upload( $_FILES['jb_resume'], array( 'test_form' => false ) );
 
 	if ( isset( $upload['error'] ) ) {
-		wp_die( $upload['error'] );
+		wp_die( esc_html( $upload['error'] ) );
 	}
 
 	// Create job application post
@@ -381,7 +381,7 @@ function jb_job_app_handle_submission() {
 	$post_id = wp_insert_post( $post_data );
 
 	if ( is_wp_error( $post_id ) ) {
-		wp_die( __( 'Failed to create application', 'jb-job-application' ) );
+		wp_die( esc_html__( 'Failed to create application', 'jb-job-application' ) );
 	}
 
 	// Save metadata
