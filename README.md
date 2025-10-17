@@ -1,4 +1,4 @@
-# JB Job Application Plugin
+# JB Job Application
 
 A WordPress plugin that allows applicants to submit job applications with resume uploads through a secure, block-embedded form.
 
