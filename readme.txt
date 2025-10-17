@@ -102,7 +102,7 @@ The current version includes standard fields (First Name, Last Name, Email, Phon
 
 = Where are resume files stored? =
 
-Resume files are stored securely in the wp-content/applications directory with UUID-based filenames. This directory is protected against direct access for security purposes.
+Resume files are stored securely in the wp-content/applications directory with UUID-based filenames. This directory is protected against direct access with an index.php file that prevents directory browsing, ensuring resume files can only be accessed through the WordPress admin interface.
 
 = Can administrators download submitted resumes? =
 
