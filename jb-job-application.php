@@ -313,7 +313,7 @@ function jb_job_app_handle_resume_download() {
 	$post_id = intval( $_GET['jb_download_resume'] );
 
 	// Verify nonce
-	if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'jb_download_resume_' . $post_id ) ) {
+	if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'jb_download_resume_' . $post_id ) ) {
 		wp_die( esc_html__( 'Security check failed', 'jb-job-application' ) );
 	}
 
