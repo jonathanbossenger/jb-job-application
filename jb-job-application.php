@@ -104,21 +104,50 @@ function jb_job_app_handle_secure_upload( $file ) {
 	
 	// Create new filename with UUID
 	$new_filename = $uuid . '.' . $extension;
-	$new_filepath = $upload_dir . '/' . $new_filename;
 
-	// Move the uploaded file to the secure location
-	if ( ! move_uploaded_file( $file['tmp_name'], $new_filepath ) ) {
-		return array( 'error' => __( 'Failed to move uploaded file', 'jb-job-application' ) );
+	// Use WordPress file handling with custom upload directory
+	add_filter( 'upload_dir', 'jb_job_app_custom_upload_dir' );
+	
+	// Override the default filename with UUID
+	// Store the callback in a variable so we can remove it later
+	$filename_filter = function( $file_data ) use ( $new_filename ) {
+		$file_data['name'] = $new_filename;
+		return $file_data;
+	};
+	add_filter( 'wp_handle_upload_prefilter', $filename_filter );
+	
+	// Upload file using WordPress functions
+	$uploaded_file = wp_handle_upload( $file, array( 'test_form' => false ) );
+	
+	// Remove filters
+	remove_filter( 'upload_dir', 'jb_job_app_custom_upload_dir' );
+	remove_filter( 'wp_handle_upload_prefilter', $filename_filter );
+	
+	// Check for upload errors
+	if ( isset( $uploaded_file['error'] ) ) {
+		return array( 'error' => $uploaded_file['error'] );
 	}
 
-	// Set proper file permissions
-	chmod( $new_filepath, 0644 );
-
 	return array(
-		'file' => $new_filepath,
+		'file' => $uploaded_file['file'],
 		'url'  => '', // We don't provide a direct URL for security
-		'type' => $file_type['type'],
+		'type' => $uploaded_file['type'],
 	);
+}
+
+/**
+ * Custom upload directory for secure file storage
+ */
+function jb_job_app_custom_upload_dir( $dirs ) {
+	$upload_dir = jb_job_app_get_applications_dir();
+	
+	$dirs['path']   = $upload_dir;
+	$dirs['url']    = '';
+	$dirs['subdir'] = '';
+	$dirs['basedir'] = $upload_dir;
+	$dirs['baseurl'] = '';
+	
+	return $dirs;
 }
 
 /**
