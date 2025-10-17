@@ -128,6 +128,18 @@ function jb_job_app_handle_secure_upload( $file ) {
 		return array( 'error' => $uploaded_file['error'] );
 	}
 
+	// Set proper file permissions using WP_Filesystem
+	global $wp_filesystem;
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		if ( ! WP_Filesystem() ) {
+			return array( 'error' => __( 'Failed to initialize filesystem', 'jb-job-application' ) );
+		}
+	}
+	if ( ! $wp_filesystem->chmod( $new_filepath, 0644 ) ) {
+		return array( 'error' => __( 'Failed to set file permissions', 'jb-job-application' ) );
+	}
+
 	return array(
 		'file' => $uploaded_file['file'],
 		'url'  => '', // We don't provide a direct URL for security
