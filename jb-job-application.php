@@ -521,7 +521,7 @@ function jb_job_app_handle_submission() {
 	}
 
 	// Verify nonce
-	if ( ! isset( $_POST['jb_job_app_nonce'] ) || ! wp_verify_nonce( $_POST['jb_job_app_nonce'], 'jb_job_app_submit' ) ) {
+	if ( ! isset( $_POST['jb_job_app_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['jb_job_app_nonce'] ), 'jb_job_app_submit' ) ) {
 		wp_die( esc_html__( 'Security check failed', 'jb-job-application' ) );
 	}
 
