@@ -104,23 +104,24 @@ function jb_job_app_handle_secure_upload( $file ) {
 	
 	// Create new filename with UUID
 	$new_filename = $uuid . '.' . $extension;
-	$new_filepath = $upload_dir . '/' . $new_filename;
 
 	// Use WordPress file handling with custom upload directory
 	add_filter( 'upload_dir', 'jb_job_app_custom_upload_dir' );
 	
 	// Override the default filename with UUID
-	add_filter( 'wp_handle_upload_prefilter', function( $file_data ) use ( $new_filename ) {
+	// Store the callback in a variable so we can remove it later
+	$filename_filter = function( $file_data ) use ( $new_filename ) {
 		$file_data['name'] = $new_filename;
 		return $file_data;
-	} );
+	};
+	add_filter( 'wp_handle_upload_prefilter', $filename_filter );
 	
 	// Upload file using WordPress functions
 	$uploaded_file = wp_handle_upload( $file, array( 'test_form' => false ) );
 	
 	// Remove filters
 	remove_filter( 'upload_dir', 'jb_job_app_custom_upload_dir' );
-	remove_all_filters( 'wp_handle_upload_prefilter' );
+	remove_filter( 'wp_handle_upload_prefilter', $filename_filter );
 	
 	// Check for upload errors
 	if ( isset( $uploaded_file['error'] ) ) {
