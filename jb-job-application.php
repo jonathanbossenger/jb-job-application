@@ -115,9 +115,13 @@ function jb_job_app_handle_secure_upload( $file ) {
 	global $wp_filesystem;
 	if ( empty( $wp_filesystem ) ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		WP_Filesystem();
+		if ( ! WP_Filesystem() ) {
+			return array( 'error' => __( 'Failed to initialize filesystem', 'jb-job-application' ) );
+		}
 	}
-	$wp_filesystem->chmod( $new_filepath, 0644 );
+	if ( ! $wp_filesystem->chmod( $new_filepath, 0644 ) ) {
+		return array( 'error' => __( 'Failed to set file permissions', 'jb-job-application' ) );
+	}
 
 	return array(
 		'file' => $new_filepath,
