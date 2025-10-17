@@ -370,14 +370,14 @@ function jb_job_app_register_block() {
 
 	wp_register_style(
 		'jb-job-app-block-editor',
-		JB_JOB_APP_PLUGIN_URL . 'build/editor.css',
+		JB_JOB_APP_PLUGIN_URL . 'build/index.css',
 		array( 'wp-edit-blocks' ),
 		JB_JOB_APP_VERSION
 	);
 
 	wp_register_style(
 		'jb-job-app-block-frontend',
-		JB_JOB_APP_PLUGIN_URL . 'build/style.css',
+		JB_JOB_APP_PLUGIN_URL . 'build/style-index.css',
 		array(),
 		JB_JOB_APP_VERSION
 	);
