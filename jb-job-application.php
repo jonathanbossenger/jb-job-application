@@ -349,8 +349,14 @@ function jb_job_app_handle_resume_download() {
 		ob_end_clean();
 	}
 
-	// Output file
-	readfile( $resume_file );
+	// Output file using WP_Filesystem
+	global $wp_filesystem;
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		WP_Filesystem();
+	}
+	
+	echo $wp_filesystem->get_contents( $resume_file );
 	exit;
 }
 add_action( 'template_redirect', 'jb_job_app_handle_resume_download' );
